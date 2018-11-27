@@ -14,7 +14,8 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <build_depend>message_generation</build_depend>
-  <build_depend>diagnostic_msgs</build_depend>
+
+  <depend>diagnostic_msgs</depend>
 
   <exec_depend>message_runtime</exec_depend>
 </package>
