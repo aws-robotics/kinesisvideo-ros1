@@ -22,4 +22,5 @@
   <depend>std_msgs</depend>
 
   <test_depend>rostest</test_depend>
+  <test_depend>rostopic</test_depend>
 </package>
