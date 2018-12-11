@@ -123,7 +123,7 @@ An example launch file called `sample_application.launch` is included in this pr
 
 
 ## Configuration File and Parameters
-Applies to the `kinesis_video_streamer` node. For configuring the encoder node, please see the README for the [H264 Video Encoder node]. An example configuration file called `stream0.yaml` is provided. When the parameters are absent in
+Applies to the `kinesis_video_streamer` node. For configuring the encoder node, please see the README for the [H264 Video Encoder node]. An example configuration file called `stream_sample_configuration.yaml` is provided. When the parameters are absent in
 the ROS parameter server, default values are used. Since this node makes HTTP requests to AWS endpoints, valid AWS credentials must be provided (this can be done via the environment variables `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` - see https://docs.aws.amazon.com/cli/latest/userguide/cli-environment.html).
 
 ### Node-wide configuration parameters
