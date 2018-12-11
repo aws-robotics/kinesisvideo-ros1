@@ -1,0 +1,18 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - apt-get update
+      - rosdep update
+      - rosdep install --from-paths . --ignore-src -r -y
+  build:
+    commands:
+      - colcon build
+      - colcon build --cmake-target tests
+  post_build:
+    commands:
+      - colcon test
+artifacts:
+  files:
+    - '**/*'
