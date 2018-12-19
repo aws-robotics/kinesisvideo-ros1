@@ -14,12 +14,15 @@
 <launch>
     <!-- If a node_name argument is provided by the caller then we will set the node's name to that value -->
     <arg name="node_name" default="kinesis_video_streamer" />
-    <!-- If a stream config file argument is provided by the caller then we will load it into the node's namespace -->
-    <arg name="config_file" default="" />
+    <!-- If a node config file argument is provided by the caller then we will load it into the streams's namespace -->
+    <arg name="node_config_file" default="" />
+    <!-- If a stream config file argument is provided by the caller then we will load it -->
+    <arg name="stream_config_file" default="" />
 
     <node name="$(arg node_name)" pkg="kinesis_video_streamer" type="kinesis_video_streamer">
         <!-- If the caller specified a config file then load it here. -->
-        <rosparam if="$(eval config_file!='')" command="load" file="$(arg config_file)" ns="kinesis_video/stream0" />
+        <rosparam if="$(eval node_config_file!='')" command="load" file="$(arg node_config_file)" />
+        <rosparam if="$(eval stream_config_file!='')" command="load" file="$(arg stream_config_file)" ns="kinesis_video/stream0" />
 
         <param name="kinesis_video/log4cplus_config" value="$(find kinesis_video_streamer)/kvs_log_configuration" />
         <param name="kinesis_video/stream_count" value="1" />
