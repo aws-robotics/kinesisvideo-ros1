@@ -385,14 +385,15 @@ TEST(StreamerGlobalSuite, rosParameterConstruction)
   const char * parameter_name = "my_param";
   string kinesis_video_prefix = "kinesis_video/";
   string parameter_path_prefix =
-    kinesis_video_prefix + string("stream") + to_string(stream_idx) + string("/");
-  string parameter_path = parameter_path_prefix + string(parameter_name);
+    kinesis_video_prefix + string("stream") + to_string(stream_idx);
+  string parameter_path = string("/") + parameter_path_prefix + string(parameter_name);
 
-  ASSERT_EQ(parameter_path_prefix + string(parameter_name),
-            Aws::Kinesis::GetStreamParameterPath(stream_idx, parameter_name));
-  ASSERT_EQ(parameter_path_prefix, Aws::Kinesis::GetStreamParameterPrefix(stream_idx));
+  ASSERT_EQ(parameter_path_prefix + string("/") + string(parameter_name),
+            Aws::Kinesis::GetStreamParameterPath(stream_idx, parameter_name).get_resolved_path('/', '/'));
+  ASSERT_EQ(parameter_path_prefix,
+            Aws::Kinesis::GetStreamParameterPrefix(stream_idx).get_resolved_path('/', '/'));
   ASSERT_EQ(kinesis_video_prefix + string(parameter_name),
-            Aws::Kinesis::GetKinesisVideoParameter(parameter_name));
+            Aws::Kinesis::GetKinesisVideoParameter(parameter_name).get_resolved_path('/', '/'));
 }
 
 void rosout_logger_callback(const rosgraph_msgs::Log & published_log)

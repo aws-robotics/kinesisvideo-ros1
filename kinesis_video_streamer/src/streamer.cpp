@@ -46,7 +46,7 @@ public:
     /* Log4cplus setup for the Kinesis Producer SDK */
     std::string log4cplus_config;
     parameter_reader_->ReadStdString(
-      GetKinesisVideoParameter(kStreamParameters.log4cplus_config).c_str(), log4cplus_config);
+      GetKinesisVideoParameter(kStreamParameters.log4cplus_config), log4cplus_config);
     if (!log4cplus_config.empty()) {
       log4cplus::PropertyConfigurator::doConfigure(log4cplus_config);
     } else {
