@@ -79,7 +79,7 @@ struct MockStreamDefinitionProvider : public StreamDefinitionProvider
   TestData * data_;
   MockStreamDefinitionProvider(TestData * data) { data_ = data; }
 
-  KinesisManagerStatus GetCodecPrivateData(const char * c_prefix,
+  KinesisManagerStatus GetCodecPrivateData(const ParameterPath & prefix,
                                            const ParameterReaderInterface & reader,
                                            PBYTE * out_codec_private_data,
                                            uint32_t * out_codec_private_data_size) const override
@@ -88,7 +88,7 @@ struct MockStreamDefinitionProvider : public StreamDefinitionProvider
     return data_->get_codec_private_data_return_value;
   }
 
-  unique_ptr<StreamDefinition> GetStreamDefinition(const char * prefix,
+  unique_ptr<StreamDefinition> GetStreamDefinition(const ParameterPath & prefix,
                                                    const ParameterReaderInterface & reader,
                                                    const PBYTE codec_private_data,
                                                    uint32_t codec_private_data_size) const override
@@ -119,12 +119,8 @@ struct MockStreamSubscriptionInstaller : public RosStreamSubscriptionInstaller
 class TestParameterReader : public ParameterReaderInterface
 {
 public:
-  TestParameterReader(map<string, int> int_map, map<string, bool> bool_map,
-                      map<string, string> string_map, map<string, map<string, string>> map_map)
-  : int_map_(int_map), bool_map_(bool_map), string_map_(string_map), map_map_(map_map)
-  {
-  }
   TestParameterReader() { TestParameterReader(""); }
+
   TestParameterReader(string test_prefix)
   {
     int_map_ = {
@@ -155,6 +151,13 @@ public:
       {test_prefix + "tags", {{"someKey", "someValue"}}},
     };
   }
+
+  TestParameterReader(map<string, int> int_map, map<string, bool> bool_map,
+                      map<string, string> string_map, map<string, map<string, string>> map_map)
+  : int_map_(int_map), bool_map_(bool_map), string_map_(string_map), map_map_(map_map)
+  {
+  }
+
   AwsError ReadInt(const char * name, int & out) const override
   {
     if (int_map_.count(name) > 0) {
@@ -163,6 +166,7 @@ public:
     }
     return AWS_ERR_NOT_FOUND;
   }
+
   AwsError ReadBool(const char * name, bool & out) const
   {
     if (bool_map_.count(name) > 0) {
@@ -171,6 +175,7 @@ public:
     }
     return AWS_ERR_NOT_FOUND;
   }
+
   AwsError ReadStdString(const char * name, string & out) const
   {
     if (string_map_.count(name) > 0) {
@@ -179,7 +184,12 @@ public:
     }
     return AWS_ERR_NOT_FOUND;
   }
-  AwsError ReadString(const char * name, Aws::String & out) const { return AWS_ERR_EMPTY; }
+
+  AwsError ReadString(const char * name, Aws::String & out) const
+  {
+    return AWS_ERR_EMPTY;
+  }
+
   AwsError ReadMap(const char * name, map<string, string> & out) const
   {
     if (map_map_.count(name) > 0) {
@@ -188,16 +198,27 @@ public:
     }
     return AWS_ERR_NOT_FOUND;
   }
+
   AwsError ReadList(const char * name, std::vector<std::string> & out) const
   {
     return AWS_ERR_EMPTY;
   }
-  AwsError ReadDouble(const char * name, double & out) const { return AWS_ERR_EMPTY; }
+
+  AwsError ReadDouble(const char * name, double & out) const
+  {
+    return AWS_ERR_EMPTY;
+  }
 
   map<string, int> int_map_;
   map<string, bool> bool_map_;
   map<string, string> string_map_;
   map<string, map<string, string>> map_map_;
+
+private:
+  std::string FormatParameterPath(const Client::ParameterPath & param_path) const
+  {
+    return param_path.get_resolved_path('/', '/');
+  }
 };
 
 struct MockStreamManager : public KinesisStreamManagerInterface

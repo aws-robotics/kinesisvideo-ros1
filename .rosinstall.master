@@ -7,14 +7,6 @@
     local-name: utils-ros1
     version: master
 - git:
-    uri: https://github.com/aws-robotics/kinesisvideo-encoder-common.git
-    local-name: kinesisvideo-encoder-common
-    version: master
-- git:
-    uri: https://github.com/aws-robotics/kinesisvideo-encoder-ros1.git
-    local-name: kinesisvideo-encoder-ros1
-    version: master
-- git:
     uri: https://github.com/aws-robotics/kinesisvideo-common.git
     local-name: kinesisvideo-common
     version: master
