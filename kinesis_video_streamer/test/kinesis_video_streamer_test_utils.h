@@ -21,8 +21,11 @@
 #include <kinesis_video_streamer/streamer.h>
 
 using namespace std;
+using namespace com::amazonaws::kinesis::video;
 using namespace Aws;
+using namespace Aws::Client;
 using namespace Aws::Kinesis;
+
 
 struct TestData
 {
@@ -158,8 +161,9 @@ public:
   {
   }
 
-  AwsError ReadInt(const char * name, int & out) const override
+  AwsError ReadParam(const ParameterPath & param_path, int & out) const override
   {
+    std::string name = FormatParameterPath(param_path);
     if (int_map_.count(name) > 0) {
       out = int_map_.at(name);
       return AWS_ERR_OK;
@@ -167,8 +171,9 @@ public:
     return AWS_ERR_NOT_FOUND;
   }
 
-  AwsError ReadBool(const char * name, bool & out) const
+  AwsError ReadParam(const ParameterPath & param_path, bool & out) const
   {
+    std::string name = FormatParameterPath(param_path);
     if (bool_map_.count(name) > 0) {
       out = bool_map_.at(name);
       return AWS_ERR_OK;
@@ -176,8 +181,9 @@ public:
     return AWS_ERR_NOT_FOUND;
   }
 
-  AwsError ReadStdString(const char * name, string & out) const
+  AwsError ReadParam(const ParameterPath & param_path, string & out) const
   {
+    std::string name = FormatParameterPath(param_path);
     if (string_map_.count(name) > 0) {
       out = string_map_.at(name);
       return AWS_ERR_OK;
@@ -185,13 +191,14 @@ public:
     return AWS_ERR_NOT_FOUND;
   }
 
-  AwsError ReadString(const char * name, Aws::String & out) const
+  AwsError ReadParam(const ParameterPath & param_path, Aws::String & out) const
   {
     return AWS_ERR_EMPTY;
   }
 
-  AwsError ReadMap(const char * name, map<string, string> & out) const
+  AwsError ReadParam(const ParameterPath & param_path, map<string, string> & out) const
   {
+    std::string name = FormatParameterPath(param_path);
     if (map_map_.count(name) > 0) {
       out = map_map_.at(name);
       return AWS_ERR_OK;
@@ -199,12 +206,12 @@ public:
     return AWS_ERR_NOT_FOUND;
   }
 
-  AwsError ReadList(const char * name, std::vector<std::string> & out) const
+  AwsError ReadParam(const ParameterPath & param_path, std::vector<std::string> & out) const
   {
     return AWS_ERR_EMPTY;
   }
 
-  AwsError ReadDouble(const char * name, double & out) const
+  AwsError ReadParam(const ParameterPath & param_path, double & out) const
   {
     return AWS_ERR_EMPTY;
   }
@@ -215,7 +222,7 @@ public:
   map<string, map<string, string>> map_map_;
 
 private:
-  std::string FormatParameterPath(const Client::ParameterPath & param_path) const
+  std::string FormatParameterPath(const ParameterPath & param_path) const
   {
     return param_path.get_resolved_path('/', '/');
   }

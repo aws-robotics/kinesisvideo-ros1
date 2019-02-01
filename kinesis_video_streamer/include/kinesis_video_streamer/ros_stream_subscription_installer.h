@@ -20,7 +20,6 @@
 #include <kinesis_video_msgs/KinesisVideoFrame.h>
 #include <kinesis_video_streamer/subscriber_callbacks.h>
 
-using namespace Aws::Utils::Logging;
 
 namespace Aws {
 namespace Kinesis {
