@@ -23,6 +23,10 @@
 #include <kinesis_video_streamer/subscriber_callbacks.h>
 #include <ros/ros.h>
 
+using namespace Aws::Client;
+using namespace Aws::Kinesis;
+
+
 #ifndef RETURN_CODE_MASK
 #define RETURN_CODE_MASK (0xff) /* Process exit code is in range (0, 255) */
 #endif
@@ -31,7 +35,6 @@
 #define UNKNOWN_ERROR_KINESIS_VIDEO_EXIT_CODE (0xf0)
 #endif
 
-using namespace Aws::Kinesis;
 
 constexpr char kNodeName[] = "kinesis_video_streamer";
 
@@ -40,12 +43,12 @@ class StreamerNode : public ros::NodeHandle
 public:
   StreamerNode(const std::string & ns = std::string()) : ros::NodeHandle(ns)
   {
-    parameter_reader_ = std::make_shared<Aws::Client::Ros1NodeParameterReader>();
+    parameter_reader_ = std::make_shared<Ros1NodeParameterReader>();
     subscription_installer_ = std::make_shared<RosStreamSubscriptionInstaller>(*this);
 
     /* Log4cplus setup for the Kinesis Producer SDK */
     std::string log4cplus_config;
-    parameter_reader_->ReadStdString(
+    parameter_reader_->ReadParam(
       GetKinesisVideoParameter(kStreamParameters.log4cplus_config), log4cplus_config);
     if (!log4cplus_config.empty()) {
       log4cplus::PropertyConfigurator::doConfigure(log4cplus_config);
@@ -57,8 +60,8 @@ public:
 
   KinesisManagerStatus Initialize()
   {
-    Aws::Client::ClientConfigurationProvider configuration_provider(parameter_reader_);
-    Aws::Client::ClientConfiguration aws_sdk_config =
+    ClientConfigurationProvider configuration_provider(parameter_reader_);
+    ClientConfiguration aws_sdk_config =
       configuration_provider.GetClientConfiguration();
     /* Set up subscription callbacks */
     if (!subscription_installer_->SetDefaultCallbacks()) {
@@ -96,7 +99,7 @@ public:
     uint32_t spinner_thread_count = kDefaultNumberOfSpinnerThreads;
     int spinner_thread_count_input;
     if (Aws::AwsError::AWS_ERR_OK ==
-        parameter_reader_->ReadInt(kSpinnerThreadCountOverrideParameter,
+        parameter_reader_->ReadParam(ParameterPath(kSpinnerThreadCountOverrideParameter),
                                    spinner_thread_count_input)) {
       spinner_thread_count = static_cast<uint32_t>(spinner_thread_count_input);
     }
@@ -105,7 +108,7 @@ public:
   }
 
 private:
-  std::shared_ptr<Aws::Client::Ros1NodeParameterReader> parameter_reader_;
+  std::shared_ptr<Ros1NodeParameterReader> parameter_reader_;
   std::shared_ptr<RosStreamSubscriptionInstaller> subscription_installer_;
   std::shared_ptr<KinesisStreamManager> stream_manager_;
   StreamDefinitionProvider stream_definition_provider_;
