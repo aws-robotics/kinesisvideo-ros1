@@ -14,6 +14,9 @@
  */
 #pragma once
 
+#include <ros/ros.h>
+#include <aws_ros1_common/sdk_utils/ros1_node_parameter_reader.h>
+
 namespace Aws {
 namespace Kinesis {
 /**
@@ -25,7 +28,28 @@ namespace Kinesis {
  * validate (or fix) the order by the receiving application.
  */
 constexpr uint32_t kDefaultNumberOfSpinnerThreads = 1;
-const char * kSpinnerThreadCountOverrideParameter = "spinner_thread_count";
+
+class StreamerNode : public ros::NodeHandle
+{
+public:
+  StreamerNode(const std::string & ns);
+  
+  ~StreamerNode() = default;
+  
+  KinesisManagerStatus Initialize();
+  
+  KinesisManagerStatus InitializeStreamSubscriptions();
+  
+  void Spin();
+  
+  void set_subscription_installer(std::shared_ptr<RosStreamSubscriptionInstaller> subscription_installer);
+  
+private:
+  std::shared_ptr<Aws::Client::ParameterReaderInterface> parameter_reader_;
+  std::shared_ptr<RosStreamSubscriptionInstaller> subscription_installer_;
+  std::shared_ptr<KinesisStreamManager> stream_manager_;
+  StreamDefinitionProvider stream_definition_provider_;
+};
 
 }  // namespace Kinesis
 }  // namespace Aws
