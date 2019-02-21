@@ -110,6 +110,15 @@ TEST_F(KinesisVideoStreamerTestBase, sanity)
   ASSERT_TRUE(KINESIS_MANAGER_STATUS_SUCCEEDED(setup_result));
 }
 
+TEST_F(KinesisVideoStreamerTestBase, invalidCallbackShouldReturnFalse)
+{
+  RosStreamSubscriptionInstaller * real_subscription_installer;
+  real_subscription_installer = new RosStreamSubscriptionInstaller(handle);
+  ASSERT_EQ(real_subscription_installer->SetupImageTransport(nullptr), false);
+  ASSERT_EQ(real_subscription_installer->SetupKinesisVideoFrameTransport(nullptr), false);
+  ASSERT_EQ(real_subscription_installer->SetupRekognitionEnabledKinesisVideoFrameTransport(nullptr), false);
+}
+
 TEST_F(KinesisVideoStreamerTestBase, codecPrivateDataFailure)
 {
   int stream_count = 100;
@@ -267,18 +276,18 @@ protected:
       ros::getGlobalCallbackQueue()->callOne(ros::WallDuration(kSingleCallbackWaitTime));
     }
     /* One of these will hold true depending on whether we're dealing with the mocked or the real
-     * callbacks. */
+    * callbacks. */
     ROS_POSTCALLBACK_ASSERT_TRUE(test_data.kinesis_video_frame_callback_call_count ==
-                                   publish_call_count ||
-                                 test_data.put_frame_call_count == publish_call_count);
+                                  publish_call_count ||
+                                test_data.put_frame_call_count == publish_call_count);
     ASSERT_EQ(test_data.image_callback_call_count, 0);
     if (test_data.put_frame_call_count == publish_call_count) {
       ASSERT_EQ(test_data.process_codec_private_data_call_count, publish_call_count);
     }
 
     /**
-     * Image transport callback test
-     */
+    * Image transport callback test
+    */
     test_data.Reset();
     subscription_topic_name = string("test1");
     parameter_reader.int_map_.at("kinesis_video/stream0/topic_type") =
@@ -301,7 +310,7 @@ protected:
     }
     ASSERT_EQ(test_data.kinesis_video_frame_callback_call_count, 0);
     ROS_POSTCALLBACK_ASSERT_TRUE(test_data.image_callback_call_count == publish_call_count ||
-                                 test_data.put_frame_call_count == publish_call_count);
+                                test_data.put_frame_call_count == publish_call_count);
 
     /**
      * Kinesis Video Frame + Rekognition

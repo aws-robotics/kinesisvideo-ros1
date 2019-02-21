@@ -67,7 +67,7 @@ public:
    * custom callbacks.
    * @return true on success
    */
-  bool SetDefaultCallbacks()
+  virtual bool SetDefaultCallbacks()
   {
     bool status = true;
     ImageTransportCallbackFn image_transport_callback;
