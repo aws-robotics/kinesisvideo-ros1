@@ -35,107 +35,91 @@ using namespace Aws::Kinesis;
 #define UNKNOWN_ERROR_KINESIS_VIDEO_EXIT_CODE (0xf0)
 #endif
 
-
 constexpr char kNodeName[] = "kinesis_video_streamer";
+const char * kSpinnerThreadCountOverrideParameter = "spinner_thread_count";
 
-class StreamerNode : public ros::NodeHandle
+namespace Aws {
+namespace Kinesis {
+  
+StreamerNode::StreamerNode(const std::string & ns = std::string()) : ros::NodeHandle(ns)
 {
-public:
-  StreamerNode(const std::string & ns = std::string()) : ros::NodeHandle(ns)
-  {
-    parameter_reader_ = std::make_shared<Ros1NodeParameterReader>();
-    subscription_installer_ = std::make_shared<RosStreamSubscriptionInstaller>(*this);
+  parameter_reader_ = std::make_shared<Ros1NodeParameterReader>();
+  subscription_installer_ = std::make_shared<RosStreamSubscriptionInstaller>(*this);
 
-    /* Log4cplus setup for the Kinesis Producer SDK */
-    std::string log4cplus_config;
-    parameter_reader_->ReadParam(
-      GetKinesisVideoParameter(kStreamParameters.log4cplus_config), log4cplus_config);
-    if (!log4cplus_config.empty()) {
-      log4cplus::PropertyConfigurator::doConfigure(log4cplus_config);
-    } else {
-      log4cplus::BasicConfigurator configurator;
-      configurator.configure();
-    }
-  }
-
-  KinesisManagerStatus Initialize()
-  {
-    ClientConfigurationProvider configuration_provider(parameter_reader_);
-    ClientConfiguration aws_sdk_config =
-      configuration_provider.GetClientConfiguration();
-    /* Set up subscription callbacks */
-    if (!subscription_installer_->SetDefaultCallbacks()) {
-      AWS_LOG_FATAL(__func__, "Failed to set up subscription callbacks.");
-      return KINESIS_MANAGER_STATUS_ERROR_BASE;
-    }
-    auto kinesis_client = std::unique_ptr<KinesisClient>(
-      Aws::New<Aws::Kinesis::KinesisClientFacade>(__func__, aws_sdk_config));
-    stream_manager_ = std::make_shared<KinesisStreamManager>(
-      parameter_reader_.get(), &stream_definition_provider_, subscription_installer_.get(),
-      std::move(kinesis_client));
-    subscription_installer_->set_stream_manager(stream_manager_.get());
-    /* Initialization of video producer */
-    KinesisManagerStatus initialize_video_producer_result =
-      stream_manager_->InitializeVideoProducer(aws_sdk_config.region.c_str());
-    if (KINESIS_MANAGER_STATUS_FAILED(initialize_video_producer_result)) {
-      AWS_LOGSTREAM_FATAL(__func__, "Failed to initialize video producer. Error code: "
-                                      << initialize_video_producer_result);
-      return initialize_video_producer_result;
-    }
-    /* Set up subscriptions and get ready to start streaming */
-    KinesisManagerStatus streamer_setup_result = stream_manager_->KinesisVideoStreamerSetup();
-    if (KINESIS_MANAGER_STATUS_SUCCEEDED(streamer_setup_result)) {
-      AWS_LOG_DEBUG(__func__, "KinesisVideoStreamerSetup completed successfully.");
-    } else {
-      AWS_LOGSTREAM_ERROR(__func__, "KinesisVideoStreamerSetup failed with error code : "
-                                      << streamer_setup_result << ". Exiting");
-      return streamer_setup_result;
-    }
-    return KINESIS_MANAGER_STATUS_SUCCESS;
-  }
-
-  void Spin()
-  {
-    uint32_t spinner_thread_count = kDefaultNumberOfSpinnerThreads;
-    int spinner_thread_count_input;
-    if (Aws::AwsError::AWS_ERR_OK ==
-        parameter_reader_->ReadParam(ParameterPath(kSpinnerThreadCountOverrideParameter),
-                                   spinner_thread_count_input)) {
-      spinner_thread_count = static_cast<uint32_t>(spinner_thread_count_input);
-    }
-    ros::MultiThreadedSpinner spinner(spinner_thread_count);
-    spinner.spin();
-  }
-
-private:
-  std::shared_ptr<Ros1NodeParameterReader> parameter_reader_;
-  std::shared_ptr<RosStreamSubscriptionInstaller> subscription_installer_;
-  std::shared_ptr<KinesisStreamManager> stream_manager_;
-  StreamDefinitionProvider stream_definition_provider_;
-};
-
-int main(int argc, char * argv[])
-{
-  int return_code = UNKNOWN_ERROR_KINESIS_VIDEO_EXIT_CODE;
-
-  ros::init(argc, argv, kNodeName);
-  StreamerNode streamer("~");
-
-  Aws::Utils::Logging::InitializeAWSLogging(
-    Aws::MakeShared<Aws::Utils::Logging::AWSROSLogger>(kNodeName));
-  Aws::SDKOptions options;
-  Aws::InitAPI(options);
-
-  KinesisManagerStatus status = streamer.Initialize();
-  if (KINESIS_MANAGER_STATUS_SUCCEEDED(status)) {
-    AWS_LOG_INFO(__func__, "Starting Kinesis Video Node...");
-    streamer.Spin();
+  /* Log4cplus setup for the Kinesis Producer SDK */
+  std::string log4cplus_config;
+  parameter_reader_->ReadParam(
+    GetKinesisVideoParameter(kStreamParameters.log4cplus_config), log4cplus_config);
+  if (!log4cplus_config.empty()) {
+    log4cplus::PropertyConfigurator::doConfigure(log4cplus_config);
   } else {
-    return_code = status;
+    log4cplus::BasicConfigurator configurator;
+    configurator.configure();
   }
-
-  AWS_LOG_INFO(__func__, "Shutting down Kinesis Video Node...");
-  Aws::Utils::Logging::ShutdownAWSLogging();
-  Aws::ShutdownAPI(options);
-  return return_code & RETURN_CODE_MASK;
 }
+
+KinesisManagerStatus StreamerNode::Initialize()
+{
+  ClientConfigurationProvider configuration_provider(parameter_reader_);
+  ClientConfiguration aws_sdk_config =
+    configuration_provider.GetClientConfiguration();
+  /* Set up subscription callbacks */
+  if (!subscription_installer_->SetDefaultCallbacks()) {
+    AWS_LOG_FATAL(__func__, "Failed to set up subscription callbacks.");
+    return KINESIS_MANAGER_STATUS_ERROR_BASE;
+  }
+  auto kinesis_client = std::unique_ptr<KinesisClient>(
+    Aws::New<Aws::Kinesis::KinesisClientFacade>(__func__, aws_sdk_config));
+  stream_manager_ = std::make_shared<KinesisStreamManager>(
+    parameter_reader_.get(), &stream_definition_provider_, subscription_installer_.get(),
+    std::move(kinesis_client));
+  subscription_installer_->set_stream_manager(stream_manager_.get());
+  /* Initialization of video producer */
+  KinesisManagerStatus initialize_video_producer_result =
+    stream_manager_->InitializeVideoProducer(aws_sdk_config.region.c_str());
+  if (KINESIS_MANAGER_STATUS_FAILED(initialize_video_producer_result)) {
+    fprintf(stderr, "Failed to initialize video producer");
+    AWS_LOGSTREAM_FATAL(__func__, "Failed to initialize video producer. Error code: "
+                                    << initialize_video_producer_result);
+    return initialize_video_producer_result;
+  }
+  
+  return KINESIS_MANAGER_STATUS_SUCCESS;
+}
+
+KinesisManagerStatus StreamerNode::InitializeStreamSubscriptions() 
+{
+  /* Set up subscriptions and get ready to start streaming */
+  KinesisManagerStatus streamer_setup_result = stream_manager_->KinesisVideoStreamerSetup();
+  if (KINESIS_MANAGER_STATUS_SUCCEEDED(streamer_setup_result)) {
+    AWS_LOG_DEBUG(__func__, "KinesisVideoStreamerSetup completed successfully.");
+  } else {
+    fprintf(stderr, "Failed to setup the kinesis video streamer");
+    AWS_LOGSTREAM_ERROR(__func__, "KinesisVideoStreamerSetup failed with error code : "
+                                    << streamer_setup_result << ". Exiting");
+    return streamer_setup_result;
+  }
+  
+  return KINESIS_MANAGER_STATUS_SUCCESS;
+}
+
+void StreamerNode::Spin()
+{
+  uint32_t spinner_thread_count = kDefaultNumberOfSpinnerThreads;
+  int spinner_thread_count_input;
+  if (Aws::AwsError::AWS_ERR_OK ==
+      parameter_reader_->ReadParam(ParameterPath(kSpinnerThreadCountOverrideParameter),
+                                 spinner_thread_count_input)) {
+    spinner_thread_count = static_cast<uint32_t>(spinner_thread_count_input);
+  }
+  ros::MultiThreadedSpinner spinner(spinner_thread_count);
+  spinner.spin();
+}
+
+void StreamerNode::set_subscription_installer(std::shared_ptr<RosStreamSubscriptionInstaller> subscription_installer)
+{
+  subscription_installer_ = subscription_installer;
+}
+
+}  // namespace Kinesis
+}  // namespace Aws

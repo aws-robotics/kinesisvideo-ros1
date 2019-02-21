@@ -54,7 +54,7 @@ void KinesisVideoFrameTransportCallback(
     KinesisManagerStatus update_codec_data_result =
       stream_manager.ProcessCodecPrivateDataForStream(stream_name, frame_msg->codec_private_data);
     if (KINESIS_MANAGER_STATUS_FAILED(update_codec_data_result)) {
-      AWS_LOGSTREAM_WARN(
+        AWS_LOGSTREAM_WARN(
         __func__, stream_name.c_str()
                     << " failed updating codec data, error code: " << update_codec_data_result
                     << ". Continuing streaming as a best effort, but you might not be able to "
