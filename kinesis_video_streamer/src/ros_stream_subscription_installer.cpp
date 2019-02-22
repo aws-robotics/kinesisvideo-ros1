@@ -48,7 +48,7 @@ bool RosStreamSubscriptionInstaller::SetupKinesisVideoFrameTransport(
     AWS_LOG_ERROR(__func__, "Invalid callback was provided");
     return false;
   }
-  SubscriberSetupFn kinesis_video_frame_setup_closure = 
+  SubscriberSetupFn kinesis_video_frame_setup_closure =
     [this, callback](const StreamSubscriptionDescriptor & descriptor) -> bool {
     boost::function<void(const kinesis_video_msgs::KinesisVideoFrame::ConstPtr &)> callback_wrapper;
     callback_wrapper = [this, callback, descriptor](
