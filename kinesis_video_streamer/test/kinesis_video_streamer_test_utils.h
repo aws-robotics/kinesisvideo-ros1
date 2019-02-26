@@ -21,8 +21,11 @@
 #include <kinesis_video_streamer/streamer.h>
 
 using namespace std;
+using namespace com::amazonaws::kinesis::video;
 using namespace Aws;
+using namespace Aws::Client;
 using namespace Aws::Kinesis;
+
 
 struct TestData
 {
@@ -79,7 +82,7 @@ struct MockStreamDefinitionProvider : public StreamDefinitionProvider
   TestData * data_;
   MockStreamDefinitionProvider(TestData * data) { data_ = data; }
 
-  KinesisManagerStatus GetCodecPrivateData(const char * c_prefix,
+  KinesisManagerStatus GetCodecPrivateData(const ParameterPath & prefix,
                                            const ParameterReaderInterface & reader,
                                            PBYTE * out_codec_private_data,
                                            uint32_t * out_codec_private_data_size) const override
@@ -88,7 +91,7 @@ struct MockStreamDefinitionProvider : public StreamDefinitionProvider
     return data_->get_codec_private_data_return_value;
   }
 
-  unique_ptr<StreamDefinition> GetStreamDefinition(const char * prefix,
+  unique_ptr<StreamDefinition> GetStreamDefinition(const ParameterPath & prefix,
                                                    const ParameterReaderInterface & reader,
                                                    const PBYTE codec_private_data,
                                                    uint32_t codec_private_data_size) const override
@@ -119,12 +122,8 @@ struct MockStreamSubscriptionInstaller : public RosStreamSubscriptionInstaller
 class TestParameterReader : public ParameterReaderInterface
 {
 public:
-  TestParameterReader(map<string, int> int_map, map<string, bool> bool_map,
-                      map<string, string> string_map, map<string, map<string, string>> map_map)
-  : int_map_(int_map), bool_map_(bool_map), string_map_(string_map), map_map_(map_map)
-  {
-  }
   TestParameterReader() { TestParameterReader(""); }
+
   TestParameterReader(string test_prefix)
   {
     int_map_ = {
@@ -155,49 +154,78 @@ public:
       {test_prefix + "tags", {{"someKey", "someValue"}}},
     };
   }
-  AwsError ReadInt(const char * name, int & out) const override
+
+  TestParameterReader(map<string, int> int_map, map<string, bool> bool_map,
+                      map<string, string> string_map, map<string, map<string, string>> map_map)
+  : int_map_(int_map), bool_map_(bool_map), string_map_(string_map), map_map_(map_map)
   {
+  }
+
+  AwsError ReadParam(const ParameterPath & param_path, int & out) const override
+  {
+    std::string name = FormatParameterPath(param_path);
     if (int_map_.count(name) > 0) {
       out = int_map_.at(name);
       return AWS_ERR_OK;
     }
     return AWS_ERR_NOT_FOUND;
   }
-  AwsError ReadBool(const char * name, bool & out) const
+
+  AwsError ReadParam(const ParameterPath & param_path, bool & out) const
   {
+    std::string name = FormatParameterPath(param_path);
     if (bool_map_.count(name) > 0) {
       out = bool_map_.at(name);
       return AWS_ERR_OK;
     }
     return AWS_ERR_NOT_FOUND;
   }
-  AwsError ReadStdString(const char * name, string & out) const
+
+  AwsError ReadParam(const ParameterPath & param_path, string & out) const
   {
+    std::string name = FormatParameterPath(param_path);
     if (string_map_.count(name) > 0) {
       out = string_map_.at(name);
       return AWS_ERR_OK;
     }
     return AWS_ERR_NOT_FOUND;
   }
-  AwsError ReadString(const char * name, Aws::String & out) const { return AWS_ERR_EMPTY; }
-  AwsError ReadMap(const char * name, map<string, string> & out) const
+
+  AwsError ReadParam(const ParameterPath & param_path, Aws::String & out) const
   {
+    return AWS_ERR_EMPTY;
+  }
+
+  AwsError ReadParam(const ParameterPath & param_path, map<string, string> & out) const
+  {
+    std::string name = FormatParameterPath(param_path);
     if (map_map_.count(name) > 0) {
       out = map_map_.at(name);
       return AWS_ERR_OK;
     }
     return AWS_ERR_NOT_FOUND;
   }
-  AwsError ReadList(const char * name, std::vector<std::string> & out) const
+
+  AwsError ReadParam(const ParameterPath & param_path, std::vector<std::string> & out) const
   {
     return AWS_ERR_EMPTY;
   }
-  AwsError ReadDouble(const char * name, double & out) const { return AWS_ERR_EMPTY; }
+
+  AwsError ReadParam(const ParameterPath & param_path, double & out) const
+  {
+    return AWS_ERR_EMPTY;
+  }
 
   map<string, int> int_map_;
   map<string, bool> bool_map_;
   map<string, string> string_map_;
   map<string, map<string, string>> map_map_;
+
+private:
+  std::string FormatParameterPath(const ParameterPath & param_path) const
+  {
+    return param_path.get_resolved_path('/', '/');
+  }
 };
 
 struct MockStreamManager : public KinesisStreamManagerInterface

@@ -104,7 +104,7 @@ TEST_F(KinesisVideoStreamerTestBase, sanity)
   parameter_reader.string_map_.insert(
     {string("kinesis_video/stream0/subscription_topic"), "topic-name"});
   unique_ptr<StreamDefinition> stream_definition =
-    real_stream_definition_provider.GetStreamDefinition("", parameter_reader, nullptr, 0);
+    real_stream_definition_provider.GetStreamDefinition(ParameterPath(""), parameter_reader, nullptr, 0);
   test_data.get_stream_definition_return_value = (StreamDefinition *)stream_definition.release();
   KinesisManagerStatus setup_result = stream_manager->KinesisVideoStreamerSetup();
   ASSERT_TRUE(KINESIS_MANAGER_STATUS_SUCCEEDED(setup_result));
@@ -155,7 +155,7 @@ TEST_F(KinesisVideoStreamerTestBase, streamInitializationFailures)
   for (int idx = 0; idx < initialization_attempts; idx++) {
     parameter_reader.int_map_.at("kinesis_video/stream_count") = stream_count;
     unique_ptr<StreamDefinition> stream_definition =
-      real_stream_definition_provider.GetStreamDefinition("", parameter_reader, nullptr, 0);
+      real_stream_definition_provider.GetStreamDefinition(ParameterPath(""), parameter_reader, nullptr, 0);
     test_data.get_stream_definition_return_value = (StreamDefinition *)stream_definition.release();
     setup_result = stream_manager->KinesisVideoStreamerSetup();
     ASSERT_TRUE(KINESIS_MANAGER_STATUS_FAILED(setup_result));
@@ -177,7 +177,7 @@ TEST_F(KinesisVideoStreamerTestBase, streamInitializationFailures)
   for (int idx = 0; idx < initialization_attempts; idx++) {
     parameter_reader.int_map_.at("kinesis_video/stream_count") = stream_count;
     unique_ptr<StreamDefinition> stream_definition =
-      real_stream_definition_provider.GetStreamDefinition("", parameter_reader, nullptr, 0);
+      real_stream_definition_provider.GetStreamDefinition(ParameterPath(""), parameter_reader, nullptr, 0);
     test_data.get_stream_definition_return_value = (StreamDefinition *)stream_definition.release();
     KinesisManagerStatus setup_result = stream_manager->KinesisVideoStreamerSetup();
     ASSERT_TRUE(KINESIS_MANAGER_STATUS_FAILED(setup_result));
@@ -250,7 +250,7 @@ protected:
     parameter_reader.string_map_.insert(
       {string("kinesis_video/stream0/subscription_topic"), subscription_topic_name});
     unique_ptr<StreamDefinition> stream_definition =
-      real_stream_definition_provider.GetStreamDefinition("kinesis_video/stream0/",
+      real_stream_definition_provider.GetStreamDefinition(ParameterPath("kinesis_video", "stream0"),
                                                           parameter_reader, nullptr, 0);
     test_data.get_stream_definition_return_value = (StreamDefinition *)stream_definition.release();
     KinesisManagerStatus setup_result = stream_manager->KinesisVideoStreamerSetup();
@@ -286,7 +286,7 @@ protected:
     parameter_reader.string_map_.at("kinesis_video/stream0/subscription_topic") =
       subscription_topic_name;
     stream_definition = real_stream_definition_provider.GetStreamDefinition(
-      "kinesis_video/stream0/", parameter_reader, nullptr, 0);
+      ParameterPath("kinesis_video", "stream0"), parameter_reader, nullptr, 0);
     test_data.get_stream_definition_return_value = (StreamDefinition *)stream_definition.release();
     setup_result = stream_manager->KinesisVideoStreamerSetup();
     ASSERT_TRUE(KINESIS_MANAGER_STATUS_SUCCEEDED(setup_result));
@@ -318,7 +318,7 @@ protected:
     parameter_reader.string_map_.insert(
       {"kinesis_video/stream0/rekognition_data_stream", "kinesis-sample"});
     stream_definition = real_stream_definition_provider.GetStreamDefinition(
-      "kinesis_video/stream0/", parameter_reader, nullptr, 0);
+      ParameterPath("kinesis_video", "stream0"), parameter_reader, nullptr, 0);
     test_data.get_stream_definition_return_value = (StreamDefinition *)stream_definition.release();
     setup_result = stream_manager->KinesisVideoStreamerSetup();
     ASSERT_TRUE(KINESIS_MANAGER_STATUS_SUCCEEDED(setup_result));
@@ -385,14 +385,15 @@ TEST(StreamerGlobalSuite, rosParameterConstruction)
   const char * parameter_name = "my_param";
   string kinesis_video_prefix = "kinesis_video/";
   string parameter_path_prefix =
-    kinesis_video_prefix + string("stream") + to_string(stream_idx) + string("/");
-  string parameter_path = parameter_path_prefix + string(parameter_name);
+    kinesis_video_prefix + string("stream") + to_string(stream_idx);
+  string parameter_path = string("/") + parameter_path_prefix + string(parameter_name);
 
-  ASSERT_EQ(parameter_path_prefix + string(parameter_name),
-            Aws::Kinesis::GetStreamParameterPath(stream_idx, parameter_name));
-  ASSERT_EQ(parameter_path_prefix, Aws::Kinesis::GetStreamParameterPrefix(stream_idx));
+  ASSERT_EQ(parameter_path_prefix + string("/") + string(parameter_name),
+            Aws::Kinesis::GetStreamParameterPath(stream_idx, parameter_name).get_resolved_path('/', '/'));
+  ASSERT_EQ(parameter_path_prefix,
+            Aws::Kinesis::GetStreamParameterPrefix(stream_idx).get_resolved_path('/', '/'));
   ASSERT_EQ(kinesis_video_prefix + string(parameter_name),
-            Aws::Kinesis::GetKinesisVideoParameter(parameter_name));
+            Aws::Kinesis::GetKinesisVideoParameter(parameter_name).get_resolved_path('/', '/'));
 }
 
 void rosout_logger_callback(const rosgraph_msgs::Log & published_log)
