@@ -246,13 +246,15 @@ struct MockStreamManager : public KinesisStreamManagerInterface
     std::string region, unique_ptr<DeviceInfoProvider> device_info_provider,
     unique_ptr<ClientCallbackProvider> client_callback_provider,
     unique_ptr<StreamCallbackProvider> stream_callback_provider,
-    unique_ptr<CredentialProvider> credential_provider) override
+    unique_ptr<CredentialProvider> credential_provider,
+    VideoProducerFactory video_producer_factory) override
   {
     data_->initialize_video_producer_call_count++;
     return data_->initialize_video_producer_return_value;
   }
 
-  KinesisManagerStatus InitializeVideoProducer(std::string region) override
+  KinesisManagerStatus InitializeVideoProducer(std::string region,
+    VideoProducerFactory video_producer_factory) override
   {
     data_->initialize_video_producer_call_count++;
     return data_->initialize_video_producer_return_value;
