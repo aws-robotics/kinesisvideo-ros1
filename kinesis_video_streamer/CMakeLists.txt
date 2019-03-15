@@ -59,9 +59,6 @@ install(FILES kvs_log_configuration DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATI
 if(CATKIN_ENABLE_TESTING)
     find_package(rostest REQUIRED)
     
-    include_directories(/usr/include/gmock /usr/src/gmock)
-    add_library(libgmock /usr/src/gmock/src/gmock-all.cc)
-    
     add_rostest_gtest(test_kinesis_video_streamer
       test/test_kinesis_video_streamer.test
       test/kinesis_video_streamer_test.cpp)
@@ -70,10 +67,9 @@ if(CATKIN_ENABLE_TESTING)
                           ${PROJECT_NAME}_lib
                           ${catkin_LIBRARIES})
                           
-    add_rostest_gtest(test_streamer_node 
+    add_rostest_gmock(test_streamer_node 
     	test/test_streamer_node.test
     	test/streamer_node_test.cpp)
     target_include_directories(test_streamer_node PRIVATE include ${catkin_INCLUDE_DIRS} ${kinesis_manager_INCLUDE_DIRS})
-    target_link_libraries(test_streamer_node ${PROJECT_NAME}_lib
-      ${GTEST_LIBRARIES} libgmock ${catkin_LIBRARIES})
+    target_link_libraries(test_streamer_node ${PROJECT_NAME}_lib ${catkin_LIBRARIES})
 endif()
