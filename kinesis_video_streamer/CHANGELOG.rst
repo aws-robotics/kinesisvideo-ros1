@@ -2,8 +2,8 @@
 Changelog for package kinesis_video_streamer
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+2.0.0 (2019-03-20)
+------------------
 * Improve GMock dependency resolution in CMakeLists.txt
 * Fix gmock dependency in CMakeLists.txt
 * Remove extra space from subscription_installer
