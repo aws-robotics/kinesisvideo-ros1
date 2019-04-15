@@ -39,8 +39,7 @@ The source code is released under [Apache 2.0].
 
 * Travis CI: [![Build Status](https://travis-ci.org/aws-robotics/kinesisvideo-ros1.svg?branch=master)](https://travis-ci.org/aws-robotics/kinesisvideo-ros1)
  * ROS build farm:
-   * v1.0.0:
-     * ROS Kinetic @ u16.04 Xenial [![Build Status](http://build.ros.org/job/Kbin_uX64__kinesis_video_streamer__ubuntu_xenial_amd64__binary/badge/icon)](http://build.ros.org/job/Kbin_uX64__kinesis_video_streamer__ubuntu_xenial_amd64__binary)
+   * ROS Kinetic @ u16.04 Xenial [![Build Status](http://build.ros.org/job/Kbin_uX64__kinesis_video_streamer__ubuntu_xenial_amd64__binary/badge/icon)](http://build.ros.org/job/Kbin_uX64__kinesis_video_streamer__ubuntu_xenial_amd64__binary)
 
 ## Installation
 
@@ -63,7 +62,7 @@ For [Amazon Rekognition] integration, the user will also need permissions for th
 On Ubuntu you can install the latest version of this package using the following command
 
         sudo apt-get update
-        sudo apt-get install -y ros-kinetic-kinesis-video-streamer
+        sudo apt-get install -y ros-$ROS_DISTRO-kinesis-video-streamer
 
 ### Building from Source
 
@@ -71,11 +70,11 @@ To build from source you'll need to create a new workspace, clone and checkout t
 
 - Create a ROS workspace and a source directory
 
-    mkdir -p ~/ros-workspace/src
+        mkdir -p ~/ros-workspace/src
 
 - Clone the package into the source directory . 
 
-_Note: Replace __`{MAJOR.VERSION}`__ below with the latest major version number to get the latest release branch._
+    _Note: Replace __`{MAJOR.VERSION}`__ below with the latest major version number to get the latest release branch._
 
         cd ~/ros-workspace/src
         git clone https://github.com/aws-robotics/kinesisvideo-ros1.git -b release-v{MAJOR.VERSION}
