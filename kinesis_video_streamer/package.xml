@@ -13,11 +13,11 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <depend version_lt='2.0.0'>aws_common</depend>
-  <depend version_lt='2.0.0'>aws_ros1_common</depend>
-  <depend version_lt='2.0.0'>kinesis_manager</depend>
+  <depend>aws_common</depend>
+  <depend>aws_ros1_common</depend>
+  <depend>kinesis_manager</depend>
   <depend>roscpp</depend>
-  <depend version_lt='2.0.0'>kinesis_video_msgs</depend>
+  <depend>kinesis_video_msgs</depend>
   <depend>image_transport</depend>
   <depend>std_msgs</depend>
 
