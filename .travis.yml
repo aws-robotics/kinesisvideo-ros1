@@ -19,6 +19,6 @@ env:
     - ROS_DISTRO=kinetic ROS_VERSION=1
     - ROS_DISTRO=melodic ROS_VERSION=1
 install:
-  - git clone https://github.com/aws-robotics/travis-scripts.git .ros_ci
+  - git clone -b legacy https://github.com/aws-robotics/travis-scripts.git .ros_ci
 script:
   - .ros_ci/ce_build.sh
