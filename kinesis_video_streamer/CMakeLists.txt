@@ -57,29 +57,55 @@ install(FILES kvs_log_configuration DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATI
 #############
 
 if(CATKIN_ENABLE_TESTING)
-    find_package(rostest REQUIRED)
-    
-    add_rostest_gtest(test_kinesis_video_streamer
-      test/test_kinesis_video_streamer.test
-      test/kinesis_video_streamer_test.cpp)
-    target_include_directories(test_kinesis_video_streamer PRIVATE include ${catkin_INCLUDE_DIRS} ${kinesis_manager_INCLUDE_DIRS})
-    target_link_libraries(test_kinesis_video_streamer
-                          ${PROJECT_NAME}_lib
-                          ${catkin_LIBRARIES})
-    find_package(GMock QUIET)
-    if(GMOCK_FOUND)
-      add_rostest_gmock(test_streamer_node
+  find_package(rostest REQUIRED)
+  add_rostest_gtest(test_kinesis_video_streamer
+    test/test_kinesis_video_streamer.test
+    test/kinesis_video_streamer_test.cpp
+  )
+  target_include_directories(test_kinesis_video_streamer PRIVATE
+    include
+    ${catkin_INCLUDE_DIRS}
+    ${kinesis_manager_INCLUDE_DIRS}
+  )
+  target_link_libraries(test_kinesis_video_streamer
+    ${PROJECT_NAME}_lib
+    ${catkin_LIBRARIES}
+  )
+
+  find_package(GMock QUIET)
+  if(GMOCK_FOUND)
+    add_rostest_gmock(test_streamer_node
     	test/test_streamer_node.test
-    	test/streamer_node_test.cpp)
-      target_include_directories(test_streamer_node PRIVATE include ${catkin_INCLUDE_DIRS} ${kinesis_manager_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS})
-      target_link_libraries(test_streamer_node ${PROJECT_NAME}_lib ${catkin_LIBRARIES} ${GMOCK_BOTH_LIBRARIES})
-    else()
-      include_directories(/usr/include/gmock /usr/src/gmock)
-      add_library(${PROJECT_NAME}_libgmock /usr/src/gmock/src/gmock-all.cc)
-      add_rostest_gtest(test_streamer_node
-        test/test_streamer_node.test
-        test/streamer_node_test.cpp)
-      target_include_directories(test_streamer_node PRIVATE include ${catkin_INCLUDE_DIRS} ${kinesis_manager_INCLUDE_DIRS})
-      target_link_libraries(test_streamer_node ${PROJECT_NAME}_lib ${catkin_LIBRARIES} ${PROJECT_NAME}_libgmock)
-    endif()
+    	test/streamer_node_test.cpp
+    )
+    target_include_directories(test_streamer_node PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${kinesis_manager_INCLUDE_DIRS}
+      ${GMOCK_INCLUDE_DIRS}
+    )
+    target_link_libraries(test_streamer_node
+      ${PROJECT_NAME}_lib
+      ${catkin_LIBRARIES}
+      ${GMOCK_BOTH_LIBRARIES}
+    )
+  else()
+    include_directories(/usr/include/gmock /usr/src/gmock)
+    add_library(${PROJECT_NAME}_libgmock SHARED /usr/src/gmock/src/gmock-all.cc)
+
+    add_rostest_gtest(test_streamer_node
+      test/test_streamer_node.test
+      test/streamer_node_test.cpp
+    )
+    target_include_directories(test_streamer_node PRIVATE
+      include
+      ${catkin_INCLUDE_DIRS}
+      ${kinesis_manager_INCLUDE_DIRS}
+    )
+    target_link_libraries(test_streamer_node
+      ${PROJECT_NAME}_lib
+      ${catkin_LIBRARIES}
+      ${PROJECT_NAME}_libgmock
+    )
+  endif()
 endif()
