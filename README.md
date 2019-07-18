@@ -36,11 +36,13 @@ The source code is released under [Apache 2.0].
 - Melodic
 
 ### Build status
+* Travis CI:
+    * "master" branch [![Build Status](https://travis-ci.org/aws-robotics/kinesisvideo-ros1.svg?branch=master)](https://travis-ci.org/aws-robotics/kinesisvideo-ros1/branches)
+    * "release-latest" branch [![Build Status](https://travis-ci.org/aws-robotics/kinesisvideo-ros1.svg?branch=release-latest)](https://travis-ci.org/aws-robotics/kinesisvideo-ros1/branches)
+* ROS build farm:
+    * ROS Kinetic @ u16.04 Xenial [![Build Status](http://build.ros.org/job/Kbin_uX64__kinesis_video_streamer__ubuntu_xenial_amd64__binary/badge/icon)](http://build.ros.org/job/Kbin_uX64__kinesis_video_streamer__ubuntu_xenial_amd64__binary)
+    * ROS Melodic @ u18.04 Bionic [![Build Status](http://build.ros.org/job/Mbin_uB64__kinesis_video_streamer__ubuntu_bionic_amd64__binary/badge/icon)](http://build.ros.org/job/Mbin_uB64__kinesis_video_streamer__ubuntu_bionic_amd64__binary)
 
-* Travis CI: [![Build Status](https://travis-ci.org/aws-robotics/kinesisvideo-ros1.svg?branch=master)](https://travis-ci.org/aws-robotics/kinesisvideo-ros1)
- * ROS build farm:
-   * ROS Kinetic @ u16.04 Xenial [![Build Status](http://build.ros.org/job/Kbin_uX64__kinesis_video_streamer__ubuntu_xenial_amd64__binary/badge/icon)](http://build.ros.org/job/Kbin_uX64__kinesis_video_streamer__ubuntu_xenial_amd64__binary)
-   * ROS Melodic @ u18.04 Bionic [![Build Status](http://build.ros.org/job/Mbin_uB64__kinesis_video_streamer__ubuntu_bionic_amd64__binary/badge/icon)](http://build.ros.org/job/Mbin_uB64__kinesis_video_streamer__ubuntu_bionic_amd64__binary)
 
 ## Installation
 
