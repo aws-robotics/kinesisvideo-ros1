@@ -9,6 +9,24 @@ Changelog for package kinesis_video_streamer
   * Update version in package.xml
 * Contributors: AAlon
 
+Forthcoming
+-----------
+* increment patch version (`#38 <https://github.com/aws-robotics/kinesisvideo-ros1/issues/38>`_)
+  Signed-off-by: Miaofei <miaofei@amazon.com>
+* Remove conditions on ROS version in package.xml (`#35 <https://github.com/aws-robotics/kinesisvideo-ros1/issues/35>`_)
+* Use standard CMake macros for adding gtest/gmock tests (`#33 <https://github.com/aws-robotics/kinesisvideo-ros1/issues/33>`_)
+  * modify kinesis_video_streamer to use add_rostest_gmock()
+  Signed-off-by: Miaofei <miaofei@amazon.com>
+  * update travis.yml to be compatible with specifying multiple package names
+  Signed-off-by: Miaofei <miaofei@amazon.com>
+* Update changelog (`#23 <https://github.com/aws-robotics/kinesisvideo-ros1/issues/23>`_)
+  * Release 2.0.1
+  * 2.0.1
+* Setting frame's trackId to the default for compatibility with newer v… (`#21 <https://github.com/aws-robotics/kinesisvideo-ros1/issues/21>`_)
+  * Setting frame's trackId to the default for compatibility with newer version of the Kinesis Producer SDK.
+  * Update version in package.xml
+* Contributors: AAlon, M. M
+
 2.0.0 (2019-03-20)
 ------------------
 * Improve GMock dependency resolution in CMakeLists.txt
