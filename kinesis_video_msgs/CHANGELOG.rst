@@ -9,8 +9,8 @@ Changelog for package kinesis_video_msgs
   * Update version in package.xml
 * Contributors: AAlon
 
-Forthcoming
------------
+2.0.2 (2019-08-01)
+------------------
 * increment patch version (`#38 <https://github.com/aws-robotics/kinesisvideo-ros1/issues/38>`_)
   Signed-off-by: Miaofei <miaofei@amazon.com>
 * Update changelog (`#23 <https://github.com/aws-robotics/kinesisvideo-ros1/issues/23>`_)
