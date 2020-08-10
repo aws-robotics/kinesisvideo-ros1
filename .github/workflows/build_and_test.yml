@@ -45,7 +45,7 @@ jobs:
     - uses: ros-tooling/action-ros-ci@0.0.17
       with:
         source-ros-binary-installation: ${{ matrix.ros_distro }}
-        package-name: aws_common
+        package-name: kinesis_video_msgs kinesis_video_streamer
         extra-cmake-args: ${{ matrix.extra_cmake_args }}
         vcs-repo-file-url: ''
     - uses: actions/upload-artifact@v1
