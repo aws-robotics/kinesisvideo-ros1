@@ -1,0 +1,5 @@
+repositories:
+  utils-common:
+    type: git
+    url: https://github.com/aws-robotics/kinesisvideo_ros1.git
+    version: release-latest
