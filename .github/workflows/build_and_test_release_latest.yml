@@ -23,10 +23,6 @@ jobs:
           ubuntu_distro: bionic
           ros_version: 1
           extra_cmake_args: --cmake-target tests
-        - ros_distro: dashing
-          ubuntu_distro: bionic
-          ros_version: 2
-          extra_cmake_args: ""
     container:
       image: rostooling/setup-ros-docker:ubuntu-${{ matrix.ubuntu_distro }}-ros-${{ matrix.ros_distro }}-ros-base-latest
     outputs:
@@ -42,7 +38,9 @@ jobs:
     - uses: ros-tooling/action-ros-ci@0.0.17
       with:
         source-ros-binary-installation: ${{ matrix.ros_distro }}
-        package-name: kinesis_video_msgs kinesis_video_streamer
+        package-name: |
+          kinesis_video_msgs
+          kinesis_video_streamer
         extra-cmake-args: ${{ matrix.extra_cmake_args }}
         # schedule runs against the default branch (master), so specify release-latest via repos file
         vcs-repo-file-url: "https://raw.githubusercontent.com/aws-robotics/utils-common/master/.github/workflows/release_latest.repos"
