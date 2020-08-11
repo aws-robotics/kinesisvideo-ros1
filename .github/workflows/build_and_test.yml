@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ros_distro: [kinetic, melodic, dashing]
+        ros_distro: [kinetic, melodic]
         include:
         - ros_distro: kinetic
           ubuntu_distro: xenial
@@ -42,7 +42,6 @@ jobs:
       with:
         source-ros-binary-installation: ${{ matrix.ros_distro }}
         package-name: |
-          kinesis_video_msgs
           kinesis_video_streamer
         extra-cmake-args: ${{ matrix.extra_cmake_args }}
         vcs-repo-file-url: ''
