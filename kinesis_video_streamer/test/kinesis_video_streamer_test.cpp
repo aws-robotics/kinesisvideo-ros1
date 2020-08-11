@@ -52,7 +52,6 @@ constexpr double kMultipleCallbacksWaitTime = 5;
   }                                                                                             \
   ASSERT_TRUE(expr)
 
-using namespace std;
 using namespace Aws::Kinesis;
 using namespace Aws::Utils::Logging;
 

@@ -20,7 +20,6 @@
 #include <kinesis_video_streamer/ros_stream_subscription_installer.h>
 #include <kinesis_video_streamer/streamer.h>
 
-using namespace std;
 using namespace com::amazonaws::kinesis::video;
 using namespace Aws;
 using namespace Aws::Client;
