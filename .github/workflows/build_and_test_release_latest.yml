@@ -17,12 +17,8 @@ jobs:
         include:
         - ros_distro: kinetic
           ubuntu_distro: xenial
-          ros_version: 1
-          extra_cmake_args: --cmake-target tests
         - ros_distro: melodic
           ubuntu_distro: bionic
-          ros_version: 1
-          extra_cmake_args: --cmake-target tests
     container:
       image: rostooling/setup-ros-docker:ubuntu-${{ matrix.ubuntu_distro }}-ros-${{ matrix.ros_distro }}-ros-base-latest
     outputs:
@@ -31,18 +27,15 @@ jobs:
     steps:
     # TODO(setup-ros-docker#7): calling chown is necessary for now
     - run: sudo chown -R rosbuild:rosbuild "$HOME" .
-    # Needed for the CMakeLists.txt setup
-    - run: export ROS_DISTRO=${{ matrix.ros_distro }}
-    # Needed for the CMakeLists.txt setup
-    - run: export ROS_VERSION=${{ matrix.ros_version }}
     - uses: ros-tooling/action-ros-ci@0.0.17
       with:
         source-ros-binary-installation: ${{ matrix.ros_distro }}
-        package-name: |
-          kinesis_video_streamer
-        extra-cmake-args: ${{ matrix.extra_cmake_args }}
         # schedule runs against the default branch (master), so specify release-latest via repos file
         vcs-repo-file-url: "https://raw.githubusercontent.com/aws-robotics/utils-common/master/.github/workflows/release_latest.repos"
+        package-name: kinesis_video_msgs kinesis_video_streamer
+        colcon-mixin-name: compile-commands coverage-gcc
+        colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/1ddb69bedfd1f04c2f000e95452f7c24a4d6176b/index.yaml
+        source-ros-binary-installation: ${{ matrix.ros_distro }}
     - uses: actions/upload-artifact@v1
       with:
         name: colcon-logs-${{ matrix.ubuntu_distro }}-ros-${{ matrix.ros_distro }}
