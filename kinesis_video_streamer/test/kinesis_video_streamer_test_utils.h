@@ -20,7 +20,6 @@
 #include <kinesis_video_streamer/ros_stream_subscription_installer.h>
 #include <kinesis_video_streamer/streamer.h>
 
-using namespace std;
 using namespace com::amazonaws::kinesis::video;
 using namespace Aws;
 using namespace Aws::Client;
@@ -91,13 +90,13 @@ struct MockStreamDefinitionProvider : public StreamDefinitionProvider
     return data_->get_codec_private_data_return_value;
   }
 
-  unique_ptr<StreamDefinition> GetStreamDefinition(const ParameterPath & prefix,
+  std::unique_ptr<StreamDefinition> GetStreamDefinition(const ParameterPath & prefix,
                                                    const ParameterReaderInterface & reader,
                                                    const PBYTE codec_private_data,
                                                    uint32_t codec_private_data_size) const override
   {
     data_->get_stream_definition_call_count++;
-    return unique_ptr<StreamDefinition>(data_->get_stream_definition_return_value);
+    return std::unique_ptr<StreamDefinition>(data_->get_stream_definition_return_value);
   }
 };
 
@@ -124,7 +123,7 @@ class TestParameterReader : public ParameterReaderInterface
 public:
   TestParameterReader() { TestParameterReader(""); }
 
-  TestParameterReader(string test_prefix)
+  TestParameterReader(std::string test_prefix)
   {
     int_map_ = {
       {test_prefix + "retention_period", 2},
@@ -155,8 +154,8 @@ public:
     };
   }
 
-  TestParameterReader(map<string, int> int_map, map<string, bool> bool_map,
-                      map<string, string> string_map, map<string, map<string, string>> map_map)
+  TestParameterReader(std::map<std::string, int> int_map, std::map<std::string, bool> bool_map,
+                      std::map<std::string, std::string> string_map, std::map<std::string, std::map<std::string, std::string>> map_map)
   : int_map_(int_map), bool_map_(bool_map), string_map_(string_map), map_map_(map_map)
   {
   }
@@ -181,7 +180,7 @@ public:
     return AWS_ERR_NOT_FOUND;
   }
 
-  AwsError ReadParam(const ParameterPath & param_path, string & out) const
+  AwsError ReadParam(const ParameterPath & param_path, std::string & out) const
   {
     std::string name = FormatParameterPath(param_path);
     if (string_map_.count(name) > 0) {
@@ -196,7 +195,7 @@ public:
     return AWS_ERR_EMPTY;
   }
 
-  AwsError ReadParam(const ParameterPath & param_path, map<string, string> & out) const
+  AwsError ReadParam(const ParameterPath & param_path, std::map<std::string, std::string> & out) const
   {
     std::string name = FormatParameterPath(param_path);
     if (map_map_.count(name) > 0) {
@@ -216,10 +215,10 @@ public:
     return AWS_ERR_EMPTY;
   }
 
-  map<string, int> int_map_;
-  map<string, bool> bool_map_;
-  map<string, string> string_map_;
-  map<string, map<string, string>> map_map_;
+  std::map<std::string, int> int_map_;
+  std::map<std::string, bool> bool_map_;
+  std::map<std::string, std::string> string_map_;
+  std::map<std::string, std::map<std::string, std::string>> map_map_;
 
 private:
   std::string FormatParameterPath(const ParameterPath & param_path) const
@@ -243,10 +242,10 @@ struct MockStreamManager : public KinesisStreamManagerInterface
   }
 
   KinesisManagerStatus InitializeVideoProducer(
-    std::string region, unique_ptr<DeviceInfoProvider> device_info_provider,
-    unique_ptr<ClientCallbackProvider> client_callback_provider,
-    unique_ptr<StreamCallbackProvider> stream_callback_provider,
-    unique_ptr<CredentialProvider> credential_provider,
+    std::string region, std::unique_ptr<DeviceInfoProvider> device_info_provider,
+    std::unique_ptr<ClientCallbackProvider> client_callback_provider,
+    std::unique_ptr<StreamCallbackProvider> stream_callback_provider,
+    std::unique_ptr<CredentialProvider> credential_provider,
     VideoProducerFactory video_producer_factory) override
   {
     data_->initialize_video_producer_call_count++;
@@ -261,7 +260,7 @@ struct MockStreamManager : public KinesisStreamManagerInterface
   }
 
   KinesisManagerStatus InitializeVideoStream(
-    unique_ptr<StreamDefinition> stream_definition) override
+    std::unique_ptr<StreamDefinition> stream_definition) override
   {
     data_->initialize_video_stream_call_count++;
     return data_->initialize_video_stream_return_value;
