@@ -9,6 +9,17 @@ Changelog for package kinesis_video_streamer
   * Update version in package.xml
 * Contributors: AAlon
 
+Forthcoming
+-----------
+* Merge pull request `#49 <https://github.com/aws-robotics/kinesisvideo-ros1/issues/49>`_ from aws-robotics/master
+  * Ignore test files in coverage calculation
+  * Update README.md to install build tool (`#40 <https://github.com/aws-robotics/kinesisvideo-ros1/issues/40>`_)
+  * Remove "using namespace std" from headers, even in tests (`#47 <https://github.com/aws-robotics/kinesisvideo-ros1/issues/47>`_)
+  Co-authored-by: AAlon <avishaya@amazon.com>
+  Co-authored-by: Abby Xu <30247381+xabxx@users.noreply.github.com>
+* Remove "using namespace std" from headers, even in tests (`#47 <https://github.com/aws-robotics/kinesisvideo-ros1/issues/47>`_)
+* Contributors: Emerson Knapp
+
 2.0.2 (2019-08-01)
 ------------------
 * increment patch version (`#38 <https://github.com/aws-robotics/kinesisvideo-ros1/issues/38>`_)
