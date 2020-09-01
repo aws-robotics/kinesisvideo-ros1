@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="3">
   <name>kinesis_video_streamer</name>
-  <version>2.0.2</version>
+  <version>2.0.3</version>
   <description>Kinesis Video Streams producer node</description>
   <url>http://wiki.ros.org/kinesis_video_streamer</url>
 

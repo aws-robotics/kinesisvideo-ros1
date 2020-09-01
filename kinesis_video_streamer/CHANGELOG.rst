@@ -9,8 +9,8 @@ Changelog for package kinesis_video_streamer
   * Update version in package.xml
 * Contributors: AAlon
 
-Forthcoming
------------
+2.0.3 (2020-09-01)
+------------------
 * Merge branch 'master' into emersonknapp/update-release
 * Remove "using namespace std" from headers, even in tests (`#47 <https://github.com/aws-robotics/kinesisvideo-ros1/issues/47>`_)
 * Contributors: Emerson Knapp
