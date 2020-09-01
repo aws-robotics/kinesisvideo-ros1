@@ -52,9 +52,9 @@ constexpr double kMultipleCallbacksWaitTime = 5;
   }                                                                                             \
   ASSERT_TRUE(expr)
 
-using namespace std;
 using namespace Aws::Kinesis;
 using namespace Aws::Utils::Logging;
+using namespace std;
 
 queue<rosgraph_msgs::Log> * kRosoutQueue = nullptr;
 TestData * kTestData = nullptr;
