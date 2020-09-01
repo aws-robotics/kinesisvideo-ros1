@@ -9,8 +9,8 @@ Changelog for package kinesis_video_streamer
   * Update version in package.xml
 * Contributors: AAlon
 
-Forthcoming
------------
+2.0.3 (2020-09-01)
+------------------
 * Merge pull request `#49 <https://github.com/aws-robotics/kinesisvideo-ros1/issues/49>`_ from aws-robotics/master
   * Ignore test files in coverage calculation
   * Update README.md to install build tool (`#40 <https://github.com/aws-robotics/kinesisvideo-ros1/issues/40>`_)

@@ -9,8 +9,8 @@ Changelog for package kinesis_video_msgs
   * Update version in package.xml
 * Contributors: AAlon
 
-Forthcoming
------------
+2.0.3 (2020-09-01)
+------------------
 
 2.0.2 (2019-08-01)
 ------------------
