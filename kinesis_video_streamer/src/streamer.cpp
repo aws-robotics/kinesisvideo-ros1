@@ -21,6 +21,8 @@
 #include <aws_common/sdk_utils/client_configuration_provider.h>
 #include <aws_ros1_common/sdk_utils/logging/aws_ros_logger.h>
 #include <aws_ros1_common/sdk_utils/ros1_node_parameter_reader.h>
+#include <kinesis_manager/default_callbacks.h>
+#include <kinesis_video_streamer/credentials.h>
 #include <kinesis_video_streamer/ros_stream_subscription_installer.h>
 #include <kinesis_video_streamer/streamer.h>
 #include <kinesis_video_streamer/subscriber_callbacks.h>
@@ -28,6 +30,7 @@
 
 using namespace Aws::Client;
 using namespace Aws::Kinesis;
+using namespace com::amazonaws::kinesis::video;
 
 
 #ifndef RETURN_CODE_MASK
@@ -71,15 +74,32 @@ KinesisManagerStatus StreamerNode::Initialize()
     AWS_LOG_FATAL(__func__, "Failed to set up subscription callbacks.");
     return KINESIS_MANAGER_STATUS_ERROR_BASE;
   }
-  auto kinesis_client = std::unique_ptr<KinesisClient>(
-    Aws::New<Aws::Kinesis::KinesisClientFacade>(__func__, aws_sdk_config));
+  Aws::Auth::ServiceAuthConfig aws_ros_config;
+  Aws::Auth::GetServiceAuthConfig(aws_ros_config, parameter_reader_);
+  auto aws_credentials_provider = Aws::MakeShared<Aws::Auth::CustomAWSCredentialsProviderChain>(__func__, aws_ros_config);
+  auto kinesis_client = std::make_unique<KinesisClient>(aws_credentials_provider, aws_sdk_config);
   stream_manager_ = std::make_shared<KinesisStreamManager>(
     parameter_reader_.get(), &stream_definition_provider_, subscription_installer_.get(),
     std::move(kinesis_client));
   subscription_installer_->set_stream_manager(stream_manager_.get());
   /* Initialization of video producer */
-  KinesisManagerStatus initialize_video_producer_result =
-    stream_manager_->InitializeVideoProducer(aws_sdk_config.region.c_str());
+  auto credentials_provider = std::make_unique<CustomProducerSdkAWSCredentialsProvider>(aws_credentials_provider);
+  KinesisManagerStatus initialize_video_producer_result;
+  if (!credentials_provider) {
+    AWS_LOG_ERROR(__func__,
+                  "Credential provider is invalid, have you set the environment variables required "
+                  "for AWS access?");
+    initialize_video_producer_result = KINESIS_MANAGER_STATUS_DEFAULT_CREDENTIAL_PROVIDER_CREATION_FAILED;
+  }
+  else {
+    auto device_provider = std::make_unique<DefaultDeviceInfoProvider>();
+    auto client_callback_provider = std::make_unique<DefaultClientCallbackProvider>();
+    auto stream_callback_provider = std::make_unique<DefaultStreamCallbackProvider>();
+    initialize_video_producer_result =
+        stream_manager_->InitializeVideoProducer(aws_sdk_config.region.c_str(),
+                                                 std::move(device_provider), std::move(client_callback_provider),
+                                                 std::move(stream_callback_provider), std::move(credentials_provider));
+  }
   if (KINESIS_MANAGER_STATUS_FAILED(initialize_video_producer_result)) {
     fprintf(stderr, "Failed to initialize video producer");
     AWS_LOGSTREAM_FATAL(__func__, "Failed to initialize video producer. Error code: "

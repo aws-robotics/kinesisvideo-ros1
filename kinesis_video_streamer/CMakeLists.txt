@@ -28,7 +28,7 @@ catkin_package()
 ## Build ##
 ###########
 ## Declare a C++ executable
-set(KINESIS_VIDEO_STREAMER_SRC src/ros_stream_subscription_installer.cpp src/subscriber_callbacks.cpp src/streamer.cpp)
+set(KINESIS_VIDEO_STREAMER_SRC src/ros_stream_subscription_installer.cpp src/subscriber_callbacks.cpp src/streamer.cpp src/credentials.cpp)
 add_executable(${PROJECT_NAME} src/main.cpp ${KINESIS_VIDEO_STREAMER_SRC})
 add_library(${PROJECT_NAME}_lib ${KINESIS_VIDEO_STREAMER_SRC})
 ## Specify include directories
