@@ -128,6 +128,7 @@ An example launch file called `sample_application.launch` is included in this pr
   - `roslaunch `[`raspicam_node`]`camerav2_410x308_30fps.launch`
   - `roslaunch h264_video_encoder sample_application.launch`
   - `roslaunch kinesis_video_streamer sample_application.launch`
+  - Start/stop streaming with `rosservice call /kinesis_video_streamer/command "enable: true/false"`
   - Log into your AWS Console to see the availabe Kinesis Video stream.
     - For other platforms, replace step 1 with an equivalent command to launch your camera node. Reconfigure the topic names accordingly.
 
@@ -142,6 +143,7 @@ The parameters below apply to the node as a whole and are not specific to any on
 | Parameter Name | Description | Type |
 | -------------- | -----------------------------------------------------------| ------------- |
 | aws_client_configuration/region | The AWS region which the video should be streamed to. | *string* |
+| kinesis_video/enabled | Enable/disable on start-up. | *bool* |
 | kinesis_video/stream_count | The number of streams you wish to load and transmit. Each stream should have its corresponding parameter set as described below. | *int* |
 | kinesis_video/log4cplus_config | (optional) Config file path for the log4cplus logger, which is used by the Kinesis Video Producer SDK. | *string* |
 

@@ -61,11 +61,6 @@ int main(int argc, char * argv[])
     return shutdown(options, status);
   }
   
-  status = streamer.InitializeStreamSubscriptions();
-  if (!KINESIS_MANAGER_STATUS_SUCCEEDED(status)) {
-    return shutdown(options, status);
-  }
-  
   AWS_LOG_INFO(__func__, "Starting Kinesis Video Node...");
   streamer.Spin();
   
