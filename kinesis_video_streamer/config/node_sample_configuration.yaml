@@ -1,3 +1,23 @@
+# This is the AWS IoT Credentials Provider configuration, used as 1st priority authentication method if valid.
+iot:
+  # Path to the Root CA for the endpoint
+  #cafile: ""
+
+  # Path to the certificate which identifies the device
+  #certfile: ""
+
+  # Path to the related private key for the certificate
+  #keyfile: ""
+
+  # Thing name for the device
+  #thing_name: ""
+
+  # Host name of the iot:CredentialProvider endpoint
+  #endpoint: ""
+
+  # Name of the AWS IoT Role Alias for the device
+  #role: ""
+
 # This is the AWS Client Configuration used by the AWS service client in the Node. If given the node will load the
 # provided configuration when initializing the client.
 aws_client_configuration:
