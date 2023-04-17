@@ -16,6 +16,7 @@
 
 #include <ros/ros.h>
 #include <aws_ros1_common/sdk_utils/ros1_node_parameter_reader.h>
+#include <kinesis_video_streamer/Command.h>
 
 namespace Aws {
 namespace Kinesis {
@@ -40,6 +41,14 @@ public:
   
   KinesisManagerStatus InitializeStreamSubscriptions();
   
+  KinesisManagerStatus UninitializeStreamSubscriptions();
+
+  bool CommandCb(kinesis_video_streamer::Command::Request &req, kinesis_video_streamer::Command::Response &res);
+
+  bool Command(bool enable);
+
+  void PublishStatus(bool enable);
+
   void Spin();
   
   void set_subscription_installer(std::shared_ptr<RosStreamSubscriptionInstaller> subscription_installer);
@@ -49,6 +58,9 @@ private:
   std::shared_ptr<RosStreamSubscriptionInstaller> subscription_installer_;
   std::shared_ptr<KinesisStreamManager> stream_manager_;
   StreamDefinitionProvider stream_definition_provider_;
+  ros::ServiceServer srv_command_;
+  ros::Publisher pub_enabled_;
+  bool enabled_;
 };
 
 }  // namespace Kinesis

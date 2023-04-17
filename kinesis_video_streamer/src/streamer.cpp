@@ -25,6 +25,7 @@
 #include <kinesis_video_streamer/streamer.h>
 #include <kinesis_video_streamer/subscriber_callbacks.h>
 #include <ros/ros.h>
+#include <std_msgs/Bool.h>
 
 using namespace Aws::Client;
 using namespace Aws::Kinesis;
@@ -86,7 +87,20 @@ KinesisManagerStatus StreamerNode::Initialize()
                                     << initialize_video_producer_result);
     return initialize_video_producer_result;
   }
-  
+  // Set up command service server
+  srv_command_ = advertiseService("command", &StreamerNode::CommandCb, this);
+  AWS_LOGSTREAM_INFO(__func__, "Service server created: " << srv_command_.getService());
+  // Enable on start if needed
+  parameter_reader_->ReadParam(GetKinesisVideoParameter("enabled"), enabled_);
+  pub_enabled_ = advertise<std_msgs::Bool>("enabled", 1, true); // Latched
+  if (enabled_) {
+    KinesisManagerStatus status = InitializeStreamSubscriptions();
+    if (KINESIS_MANAGER_STATUS_FAILED(status)) {
+      return status;
+    }
+  }
+  PublishStatus(enabled_);
+
   return KINESIS_MANAGER_STATUS_SUCCESS;
 }
 
@@ -104,6 +118,65 @@ KinesisManagerStatus StreamerNode::InitializeStreamSubscriptions()
   }
   
   return KINESIS_MANAGER_STATUS_SUCCESS;
+}
+
+KinesisManagerStatus StreamerNode::UninitializeStreamSubscriptions()
+{
+  // Unsubscribe and free all Kinesis streams to stop streaming
+  int video_stream_count = 0;
+  parameter_reader_->ReadParam(GetKinesisVideoParameter(kStreamParameters.stream_count), video_stream_count);
+  for (int stream_idx = 0; stream_idx < video_stream_count; stream_idx++) {
+    std::string stream_name, topic_name;
+    parameter_reader_->ReadParam(GetStreamParameterPath(stream_idx, kStreamParameters.stream_name), stream_name);
+    parameter_reader_->ReadParam(GetStreamParameterPath(stream_idx, kStreamParameters.topic_name), topic_name);
+    subscription_installer_->Uninstall(topic_name);
+    stream_manager_->FreeStream(stream_name);
+  }
+  return KINESIS_MANAGER_STATUS_SUCCESS;
+}
+
+bool StreamerNode::CommandCb(kinesis_video_streamer::Command::Request &req, kinesis_video_streamer::Command::Response &res)
+{
+  // Request node shutdown if start/stop streaming failed
+  if (!Command(req.enable)) {
+    ros::requestShutdown();
+    return false;
+  }
+  else
+    return true;
+}
+
+bool StreamerNode::Command(bool enable)
+{
+  // Act only on mode switch
+  if (enable == enabled_)
+    return true;
+
+  KinesisManagerStatus status;
+  // Enable
+  if (enable) {
+    status = InitializeStreamSubscriptions(); // Can partially succeed, but returned status will be failed
+  }
+  // Disable
+  else {
+    status = UninitializeStreamSubscriptions();
+  }
+
+  // Set enabled if succeeded only
+  if (KINESIS_MANAGER_STATUS_SUCCEEDED(status)) {
+    enabled_ = enable;
+    PublishStatus(enabled_);
+    return true;
+  }
+  else
+    return false;
+}
+
+void StreamerNode::PublishStatus(bool enable)
+{
+  std_msgs::Bool msg;
+  msg.data = enable;
+  pub_enabled_.publish(msg);
 }
 
 void StreamerNode::Spin()
